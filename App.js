@@ -1,44 +1,82 @@
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 
-export default function App() {
-  const col1Buttons = [
-    ['7', '8', '9'],
-    ['4', '5', '6'],
-    ['1', '2', '3'],
-    [',', '0', '='],
-  ]
+export default class App extends React.Component {
+  constructor(props) {
+    super(props)
+    this.state = {
+      display: '',
+      result: '',
+    }
+  }
 
-  const col2Buttons = ['C', '÷', 'x', '-', '+']
+  handleOp(op) {
+    if (op === 'C') {
+      this.setState({
+        display: '',
+        result: '',
+      })
+    } else if (op === '=') {
+      this.setState({
+        display: this.state.result,
+        result: ''
+      })
+    } else {
+      const display = this.state.display + op
+      let result = this.state.result
+      try {
+        let fixedOperation = display.split('x').join('*')
+        fixedOperation = fixedOperation.split('÷').join('/')
+        fixedOperation = fixedOperation.split(',').join('.')
+        result = new String(eval(fixedOperation)).toString()
+      } catch (e) { }
 
-  return (
-    <View style={styles.container}>
-      <Text style={styles.display}>Display</Text>
-      <Text style={styles.result}>Result</Text>
-      <View style={styles.buttons}>
-        <View style={styles.col1}>
-          {col1Buttons.map((line, ind) => <View key={ind} style={styles.line}>
-            {line.map(op => <View key={op} style={styles.btn}>
-              <Text style={styles.btnText}>
-                {op}
-              </Text>
+      this.setState({
+        display,
+        result
+      })
+    }
+  }
+
+  render() {
+    const col1Buttons = [
+      ['7', '8', '9'],
+      ['4', '5', '6'],
+      ['1', '2', '3'],
+      [',', '0', '='],
+    ]
+
+    const col2Buttons = ['C', '÷', 'x', '-', '+']
+
+    return (
+      <View style={styles.container}>
+        <Text style={styles.display}>{this.state.display}</Text>
+        <Text style={styles.result}>{this.state.result}</Text>
+        <View style={styles.buttons}>
+          <View style={styles.col1}>
+            {col1Buttons.map((line, ind) => <View key={ind} style={styles.line}>
+              {line.map(op => <TouchableOpacity onPress={() => this.handleOp(op)} key={op} style={styles.btn}>
+                <Text style={styles.btnText}>
+                  {op}
+                </Text>
+              </TouchableOpacity>
+              )}
             </View>
             )}
           </View>
-          )}
-        </View>
-        <View style={styles.col2}>
-          {col2Buttons.map(op => <View key={op} style={styles.btn}>
-            <Text style={styles.btnText}>
-              {op}
-            </Text>
+          <View style={styles.col2}>
+            {col2Buttons.map(op => <TouchableOpacity onPress={() => this.handleOp(op)} key={op} style={styles.btn}>
+              <Text style={styles.btnText}>
+                {op}
+              </Text>
+            </TouchableOpacity>
+            )}
           </View>
-          )}
-        </View>
 
+        </View>
       </View>
-    </View>
-  );
+    );
+  }
 }
 
 const styles = StyleSheet.create({
@@ -74,7 +112,7 @@ const styles = StyleSheet.create({
 
   col1: {
     flex: 3,
-    backgroundColor: 'gray',
+    backgroundColor: '#000000',
   },
 
   line: {
@@ -90,10 +128,11 @@ const styles = StyleSheet.create({
   btnText: {
     textAlign: 'center',
     fontSize: 45,
+    color: 'white'
   },
 
   col2: {
     flex: 1,
-    backgroundColor: 'red'
+    backgroundColor: '#363636'
   },
 });
